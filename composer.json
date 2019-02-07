@@ -8,6 +8,7 @@
         "mollie/mollie-api-php": "^2.6",
         "picqer/moneybird-php-client": "^0.19.0",
         "sensio/framework-extra-bundle": "^5.1",
+        "spatie/image": "^1.6",
         "symfony/asset": "4.2.*",
         "symfony/console": "4.2.*",
         "symfony/dotenv": "4.2.*",
