@@ -1,0 +1,35 @@
+parameters:
+  env(MONEYBIRD_REDIRECT_URL): ''
+  env(MONEYBIRD_CLIENT_ID): ''
+  env(MONEYBIRD_CLIENT_SECRET): ''
+  env(MONEYBIRD_AUTHORIZATION_CODE): ''
+  env(MONEYBIRD_ACCESS_TOKEN): ''
+  env(MONEYBIRD_ADMINISTRATION_ID): ''
+
+services:
+  Picqer\Financials\Moneybird\Connection:
+    lazy: true
+    calls:
+      - method: setRedirectUrl
+        arguments:
+          - '%env(MONEYBIRD_REDIRECT_URL)%'
+      - method: setClientId
+        arguments:
+          - '%env(MONEYBIRD_CLIENT_ID)%'
+      - method: setClientSecret
+        arguments:
+          - '%env(MONEYBIRD_CLIENT_SECRET)%'
+      - method: setAuthorizationCode
+        arguments:
+          - '%env(MONEYBIRD_AUTHORIZATION_CODE)%'
+      - method: setAccessToken
+        arguments:
+          - '%env(MONEYBIRD_ACCESS_TOKEN)%'
+      - method: connect
+      - method: setAdministrationId
+        arguments:
+          - '%env(MONEYBIRD_ADMINISTRATION_ID)%'
+
+  Picqer\Financials\Moneybird\Moneybird:
+    arguments:
+      - '@Picqer\Financials\Moneybird\Connection'
