@@ -1,4 +1,6 @@
 {
+    "name": "pets-life-photography/aperture",
+    "description": "Pets Life Photography client portal",
     "type": "project",
     "license": "proprietary",
     "require": {
@@ -17,10 +19,10 @@
         "symfony/form": "4.2.*",
         "symfony/framework-bundle": "4.2.*",
         "symfony/monolog-bundle": "^3.1",
-        "symfony/orm-pack": "*",
+        "symfony/orm-pack": "^1.0",
         "symfony/process": "4.2.*",
         "symfony/security-bundle": "4.2.*",
-        "symfony/serializer-pack": "*",
+        "symfony/serializer-pack": "^1.0",
         "symfony/swiftmailer-bundle": "^3.1",
         "symfony/translation": "4.2.*",
         "symfony/twig-bundle": "4.2.*",
@@ -29,17 +31,18 @@
         "symfony/yaml": "4.2.*"
     },
     "require-dev": {
-        "symfony/debug-pack": "*",
+        "mediact/testing-suite": "@stable",
+        "symfony/debug-pack": "@stable",
         "symfony/maker-bundle": "^1.0",
-        "symfony/profiler-pack": "*",
-        "symfony/test-pack": "*",
+        "symfony/profiler-pack": "@stable",
+        "symfony/test-pack": "@stable",
         "symfony/web-server-bundle": "4.2.*"
     },
     "config": {
+        "sort-packages": true,
         "preferred-install": {
             "*": "dist"
-        },
-        "sort-packages": true
+        }
     },
     "autoload": {
         "psr-4": {
@@ -78,6 +81,19 @@
         "symfony": {
             "allow-contrib": false,
             "require": "4.2.*"
+        },
+        "grumphp": {
+            "config-default-path": "vendor/mediact/testing-suite/config/default/grumphp.yml"
         }
+    },
+    "archive": {
+        "exclude": [
+            "/.gitignore",
+            "/tests",
+            "/phpunit.xml",
+            "/phpmd.xml",
+            "/phpstan.neon",
+            "/phpcs.xml"
+        ]
     }
 }
