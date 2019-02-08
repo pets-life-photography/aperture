@@ -33,3 +33,6 @@ services:
   Picqer\Financials\Moneybird\Moneybird:
     arguments:
       - '@Picqer\Financials\Moneybird\Connection'
+
+  Picqer\Financials\Moneybird\Entities\Contact:
+    factory: 'Picqer\Financials\Moneybird\Moneybird:contact'

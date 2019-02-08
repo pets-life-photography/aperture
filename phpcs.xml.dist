@@ -10,5 +10,7 @@
     <exclude-pattern>public/*</exclude-pattern>
     <exclude-pattern>src/Kernel.php</exclude-pattern>
     <exclude-pattern>src/Entity/*.php</exclude-pattern>
+    <exclude-pattern>src/Repository/*Repository.php</exclude-pattern>
+    <exclude-pattern>src/Migrations/Version*.php</exclude-pattern>
     <rule ref="./vendor/mediact/coding-standard/src/MediaCT"/>
 </ruleset>
