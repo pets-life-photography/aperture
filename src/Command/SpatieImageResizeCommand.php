@@ -67,10 +67,11 @@ class SpatieImageResizeCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ): int {
-        $io     = new SymfonyStyle($input, $output);
+        /** @var Image|Manipulations $image */
         $image  = Image::load($input->getArgument('image'));
-        $width  = $input->getArgument('width');
-        $height = $input->getArgument('height');
+        $io     = new SymfonyStyle($input, $output);
+        $width  = (int)$input->getArgument('width');
+        $height = (int)$input->getArgument('height');
         $output = $input->getArgument('destination') ?: tempnam(
             sys_get_temp_dir(),
             'spatie_image_resize'
@@ -97,8 +98,8 @@ class SpatieImageResizeCommand extends Command
 
         $result = Image::load($output);
 
-        if (!$result->getWidth() === $width
-            && !$result->getHeight() === $height
+        if ($result->getWidth() !== $width
+            && $result->getHeight() !== $height
         ) {
             $io->error('Failed to resize image.');
             return static::EXIT_RESIZE_FAILED;
