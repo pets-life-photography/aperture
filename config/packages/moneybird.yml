@@ -36,3 +36,6 @@ services:
 
   Picqer\Financials\Moneybird\Entities\Contact:
     factory: 'Picqer\Financials\Moneybird\Moneybird:contact'
+
+  Picqer\Financials\Moneybird\Entities\Webhook:
+    factory: 'Picqer\Financials\Moneybird\Moneybird:webhook'
