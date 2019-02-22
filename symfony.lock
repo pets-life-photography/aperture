@@ -146,6 +146,9 @@
     "mediact/composer-unclog-plugin": {
         "version": "1.0.0"
     },
+    "mediact/data-container": {
+        "version": "2.9.0"
+    },
     "mediact/file-mapping": {
         "version": "1.0.3"
     },
