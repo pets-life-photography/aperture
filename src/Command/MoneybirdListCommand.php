@@ -9,10 +9,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class MoneybirdApiEntityCommand extends Command
+class MoneybirdListCommand extends Command
 {
     /** @var string */
-    protected static $defaultName = 'moneybird:api:entity';
+    protected static $defaultName = 'moneybird:list';
 
     /** @var Moneybird */
     private $client;
@@ -35,7 +35,7 @@ class MoneybirdApiEntityCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setDescription('Fetch API entities');
+        $this->setDescription('List API entities');
         $this->addArgument(
             'entity',
             InputArgument::REQUIRED,

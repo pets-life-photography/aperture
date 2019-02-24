@@ -10,8 +10,9 @@ use App\Entity\Client;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Picqer\Financials\Moneybird\Entities\Contact;
+use Picqer\Financials\Moneybird\Model;
 
-class ContactSynchronizer implements ContactSynchronizerInterface
+class ContactImporter implements ModelImporterInterface
 {
     private const REQUIRED_ATTRIBUTES = [
         'firstname',
@@ -46,39 +47,41 @@ class ContactSynchronizer implements ContactSynchronizerInterface
     /**
      * Determine whether the given contact is candidate to become a client.
      *
-     * @param Contact $contact
+     * @param Model $model
      *
      * @return bool
      */
-    public function isCandidate(Contact $contact): bool
+    public function isCandidate(Model $model): bool
     {
-        $attributes = $contact->attributes();
+        $attributes = $model->attributes();
 
         return array_reduce(
             static::REQUIRED_ATTRIBUTES,
             function (bool $carry, string $attribute) use ($attributes): bool {
                 return $carry && !empty($attributes[$attribute]);
             },
-            !empty($attributes)
+            $model instanceof Contact && !empty($attributes)
         );
     }
 
     /**
-     * Synchronize the given contact with local clients.
+     * Import the given contact.
      *
-     * @param Contact $contact
+     * @param Model $model
      *
      * @return void
      */
-    public function synchronize(Contact $contact): void
+    public function import(Model $model): void
     {
-        $remote = $this->createClient($contact);
-        $client = $this->merge(
-            $this->repository->find($remote->getId()) ?? $remote,
-            $remote
-        );
-        $this->entityManager->persist($client);
-        $this->entityManager->flush();
+        if ($model instanceof Contact) {
+            $remote = $this->createClient($model);
+            $client = $this->merge(
+                $this->repository->find($remote->getId()) ?? $remote,
+                $remote
+            );
+            $this->entityManager->persist($client);
+            $this->entityManager->flush();
+        }
     }
 
     /**

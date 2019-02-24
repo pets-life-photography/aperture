@@ -3,10 +3,13 @@
 namespace App\Command;
 
 use App\Event\MoneybirdWebhookReceivedEvent;
+use Http\Client\HttpClient;
+use Http\Message\MessageFactory;
 use Picqer\Financials\Moneybird\Entities\Webhook;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -19,6 +22,12 @@ class MoneybirdWebhookRegisterCommand extends Command
     /** @var Webhook */
     private $resource;
 
+    /** @var HttpClient */
+    private $client;
+
+    /** @var MessageFactory */
+    private $messageFactory;
+
     /** @var EventDispatcherInterface */
     private $dispatcher;
 
@@ -26,14 +35,20 @@ class MoneybirdWebhookRegisterCommand extends Command
      * Constructor.
      *
      * @param Webhook                  $resource
+     * @param HttpClient               $client
+     * @param MessageFactory           $messageFactory
      * @param EventDispatcherInterface $dispatcher
      */
     public function __construct(
         Webhook $resource,
+        HttpClient $client,
+        MessageFactory $messageFactory,
         EventDispatcherInterface $dispatcher
     ) {
-        $this->resource   = $resource;
-        $this->dispatcher = $dispatcher;
+        $this->resource       = $resource;
+        $this->client         = $client;
+        $this->messageFactory = $messageFactory;
+        $this->dispatcher     = $dispatcher;
         parent::__construct();
     }
 
@@ -49,6 +64,12 @@ class MoneybirdWebhookRegisterCommand extends Command
             'callback_uri',
             InputArgument::REQUIRED,
             'The URI called by Moneybird.'
+        );
+        $this->addOption(
+            'purge',
+            'p',
+            InputOption::VALUE_NONE,
+            'Purge all other registered webhooks'
         );
     }
 
@@ -66,6 +87,17 @@ class MoneybirdWebhookRegisterCommand extends Command
     ): int {
         $io  = new SymfonyStyle($input, $output);
         $uri = $input->getArgument('callback_uri');
+
+        $response = $this->client->sendRequest(
+            $this->messageFactory->createRequest('GET', $uri)
+        );
+
+        if ($response->getStatusCode() !== 200) {
+            $io->error(
+                sprintf('Could not access webhook: %s', $uri)
+            );
+            return 1;
+        }
 
         $io->comment(
             sprintf('Creating / updating webhook: %s', $uri)
@@ -107,13 +139,16 @@ class MoneybirdWebhookRegisterCommand extends Command
             $this->resource->insert();
         }
 
+        $purgeAll = $input->getOption('purge');
+
         /** @var Webhook $webhook */
         foreach ($existing as $webhook) {
-            if ($webhook->__get('url') === $uri) {
+            if ($purgeAll || $webhook->__get('url') === $uri) {
                 $io->warning(
                     sprintf(
-                        'Removing existing webhook: %s',
-                        $webhook->__get('id')
+                        'Removing existing webhook: %s (%s)',
+                        $webhook->__get('id'),
+                        $webhook->__get('url')
                     )
                 );
                 $webhook->delete();

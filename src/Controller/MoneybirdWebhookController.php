@@ -39,7 +39,11 @@ class MoneybirdWebhookController extends AbstractController
             $state  = $update->get('state') !== null
                 ? $update->node('state')
                 : $update->node('entity');
-            $event  = new MoneybirdWebhookReceivedEvent($action, $state);
+            $event  = new MoneybirdWebhookReceivedEvent(
+                $action,
+                $update->get('entity_type', 'unknown'),
+                $state
+            );
 
             $dispatcher->dispatch(
                 MoneybirdWebhookReceivedEvent::NAME,

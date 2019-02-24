@@ -16,6 +16,9 @@ class MoneybirdWebhookReceivedEvent extends Event
     /** @var string */
     private $action;
 
+    /** @var string */
+    private $entityType;
+
     /** @var DataContainerInterface */
     private $state;
 
@@ -23,12 +26,17 @@ class MoneybirdWebhookReceivedEvent extends Event
      * Constructor.
      *
      * @param string                 $action
+     * @param string                 $entityType
      * @param DataContainerInterface $state
      */
-    public function __construct(string $action, DataContainerInterface $state)
-    {
-        $this->action = $action;
-        $this->state  = $state;
+    public function __construct(
+        string $action,
+        string $entityType,
+        DataContainerInterface $state
+    ) {
+        $this->action     = $action;
+        $this->entityType = $entityType;
+        $this->state      = $state;
     }
 
     /**
@@ -39,6 +47,16 @@ class MoneybirdWebhookReceivedEvent extends Event
     public function getAction(): string
     {
         return $this->action;
+    }
+
+    /**
+     * Get the entity type of the changed entity.
+     *
+     * @return string
+     */
+    public function getEntityType(): string
+    {
+        return $this->entityType;
     }
 
     /**

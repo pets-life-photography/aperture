@@ -8,10 +8,10 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class MoneybirdApiAuthenticateCommand extends Command
+class MoneybirdAuthenticateCommand extends Command
 {
     /** @var string */
-    protected static $defaultName = 'moneybird:api:authenticate';
+    protected static $defaultName = 'moneybird:authenticate';
 
     /** @var Connection */
     private $connection;
