@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Throwable;
 
 class MoneybirdImportCommand extends Command
 {
@@ -104,7 +105,11 @@ class MoneybirdImportCommand extends Command
 
             $io->text(sprintf('<info>Importing</info> %s', $id));
 
-            $this->importer->import($model);
+            try {
+                $this->importer->import($model);
+            } catch (Throwable $exception) {
+                $io->error($exception->getMessage());
+            }
         }
 
         return 0;

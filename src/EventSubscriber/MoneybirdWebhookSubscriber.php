@@ -14,7 +14,11 @@ class MoneybirdWebhookSubscriber implements EventSubscriberInterface
     private const EVENTS       = [
         'contact_changed',
         'contact_created',
-        'contact_merged'
+        'contact_merged',
+        'tax_rate_activated',
+        'tax_rate_created',
+        'tax_rate_deactivated',
+        'tax_rate_updated'
     ];
 
     /** @var Moneybird */

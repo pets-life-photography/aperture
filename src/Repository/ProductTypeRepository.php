@@ -1,0 +1,62 @@
+<?php
+
+namespace App\Repository;
+
+use App\Entity\ProductType;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Symfony\Bridge\Doctrine\RegistryInterface;
+
+/**
+ * @method ProductType|null find($id, $lockMode = null, $lockVersion = null)
+ * @method ProductType|null findOneBy(array $criteria, array $orderBy = null)
+ * @method ProductType[]    findAll()
+ * @method ProductType[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ */
+class ProductTypeRepository extends ServiceEntityRepository
+{
+    private const DEFAULT_TYPE = 'defined';
+
+    public function __construct(RegistryInterface $registry)
+    {
+        parent::__construct($registry, ProductType::class);
+    }
+
+    /**
+     * Get the default product type.
+     *
+     * @return ProductType
+     */
+    public function getDefaultType(): ProductType
+    {
+        return $this->find(static::DEFAULT_TYPE);
+    }
+
+    // /**
+    //  * @return ProductType[] Returns an array of ProductType objects
+    //  */
+    /*
+    public function findByExampleField($value)
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.exampleField = :val')
+            ->setParameter('val', $value)
+            ->orderBy('p.id', 'ASC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+    */
+
+    /*
+    public function findOneBySomeField($value): ?ProductType
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.exampleField = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+    */
+}

@@ -31,3 +31,5 @@ services:
     App\Moneybird\ChainImporter:
         arguments:
             - '@App\Moneybird\ContactImporter'
+            - '@App\Moneybird\TaxRateImporter'
+            - '@App\Moneybird\ProductImporter'

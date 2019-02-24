@@ -15,8 +15,7 @@ class Client
 {
     /**
      * @ORM\Id()
-     * @ORM\Column(type="integer")
-     * @Assert\GreaterThan(0)
+     * @ORM\Column(type="string")
      */
     private $id;
 
@@ -68,12 +67,12 @@ class Client
      */
     private $country;
 
-    public function getId(): ?int
+    public function getId(): ?string
     {
         return $this->id;
     }
 
-    public function setId(?int $id): self
+    public function setId(?string $id): self
     {
         $this->id = $id;
 
