@@ -15,6 +15,10 @@ use Picqer\Financials\Moneybird\Model;
 
 class TaxRateImporter implements ModelImporterInterface
 {
+    private const SUPPORTED_TAX_RATE_TYPES = [
+        'sales_invoice'
+    ];
+
     /** @var TaxRateRepository */
     private $repository;
 
@@ -44,7 +48,14 @@ class TaxRateImporter implements ModelImporterInterface
      */
     public function isCandidate(Model $model): bool
     {
-        return $model instanceof Remote;
+        return (
+            $model instanceof Remote
+            && in_array(
+                $model->__get('tax_rate_type'),
+                static::SUPPORTED_TAX_RATE_TYPES,
+                true
+            )
+        );
     }
 
     /**
