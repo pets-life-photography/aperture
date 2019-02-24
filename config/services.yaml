@@ -33,3 +33,17 @@ services:
             - '@App\Moneybird\ContactImporter'
             - '@App\Moneybird\TaxRateImporter'
             - '@App\Moneybird\ProductImporter'
+            - '@App\Moneybird\WorkflowImporter'
+
+    App\Moneybird\ModelDestroyerInterface: '@App\Moneybird\ChainDestroyer'
+    App\Moneybird\ChainDestroyer:
+        arguments:
+            - '@App\Moneybird\WorkflowDestroyer'
+            - '@App\Moneybird\TaxRateDestroyer'
+
+    App\Entity\Workflow:
+        lazy: true
+        factory: 'App\Repository\WorkflowRepository:findOneBy'
+        arguments:
+            - active: true
+              selected: true

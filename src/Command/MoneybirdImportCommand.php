@@ -84,6 +84,9 @@ class MoneybirdImportCommand extends Command
         $io     = new SymfonyStyle($input, $output);
         $entity = $input->getArgument('entity');
 
+        /** @var Model|FindAll $resource */
+        $resource = $this->client->{$entity}();
+
         $io->title(
             sprintf(
                 'Synchronizing Moneybird %s entities',
@@ -91,19 +94,16 @@ class MoneybirdImportCommand extends Command
             )
         );
 
-        /** @var Model|FindAll $resource */
-        $resource = $this->client->{$entity}();
-
         /** @var Model $model */
         foreach ($resource->getAll() as $model) {
             $id = $model->__get('id');
 
             if (!$this->importer->isCandidate($model)) {
-                $io->text(sprintf('<comment>Skipping</comment> %s', $id));
+                $io->text(sprintf("<comment>Skipping</comment>\t%s", $id));
                 continue;
             }
 
-            $io->text(sprintf('<info>Importing</info> %s', $id));
+            $io->text(sprintf("<info>Importing</info>\t%s", $id));
 
             try {
                 $this->importer->import($model);

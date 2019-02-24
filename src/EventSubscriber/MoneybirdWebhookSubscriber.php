@@ -3,6 +3,7 @@
 namespace App\EventSubscriber;
 
 use App\Event\MoneybirdWebhookReceivedEvent;
+use App\Moneybird\ModelDestroyerInterface;
 use App\Moneybird\ModelImporterInterface;
 use Picqer\Financials\Moneybird\Model;
 use Picqer\Financials\Moneybird\Moneybird;
@@ -10,15 +11,25 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class MoneybirdWebhookSubscriber implements EventSubscriberInterface
 {
-    private const EVENT_PREFIX = MoneybirdWebhookReceivedEvent::NAME;
-    private const EVENTS       = [
+    private const EVENT_PREFIX        = MoneybirdWebhookReceivedEvent::NAME;
+    private const IMPORT_EVENTS       = [
         'contact_changed',
         'contact_created',
         'contact_merged',
         'tax_rate_activated',
         'tax_rate_created',
         'tax_rate_deactivated',
-        'tax_rate_updated'
+        'tax_rate_updated',
+        'workflow_created',
+        'workflow_deactivated',
+        'workflow_updated'
+    ];
+    private const DESTROY_EVENTS      = [
+        'tax_rate_destroyed',
+        'workflow_destroyed'
+    ];
+    private const METHOD_TRANSLATIONS = [
+        'invoiceWorkflow' => 'workflow'
     ];
 
     /** @var Moneybird */
@@ -27,18 +38,24 @@ class MoneybirdWebhookSubscriber implements EventSubscriberInterface
     /** @var ModelImporterInterface */
     private $importer;
 
+    /** @var ModelDestroyerInterface */
+    private $destroyer;
+
     /**
      * Constructor.
      *
-     * @param Moneybird              $client
-     * @param ModelImporterInterface $importer
+     * @param Moneybird               $client
+     * @param ModelImporterInterface  $importer
+     * @param ModelDestroyerInterface $destroyer
      */
     public function __construct(
         Moneybird $client,
-        ModelImporterInterface $importer
+        ModelImporterInterface $importer,
+        ModelDestroyerInterface $destroyer
     ) {
-        $this->client   = $client;
-        $this->importer = $importer;
+        $this->client    = $client;
+        $this->importer  = $importer;
+        $this->destroyer = $destroyer;
     }
 
     /**
@@ -61,19 +78,34 @@ class MoneybirdWebhookSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
-        return array_reduce(
-            static::EVENTS,
+        $events = array_reduce(
+            static::IMPORT_EVENTS,
             function (array $carry, string $event): array {
                 $index         = sprintf(
                     '%s.%s',
                     static::EVENT_PREFIX,
                     $event
                 );
-                $carry[$index] = 'onWebhookReceived';
+                $carry[$index] = 'onImport';
 
                 return $carry;
             },
             []
+        );
+
+        return array_reduce(
+            static::DESTROY_EVENTS,
+            function (array $carry, string $event): array {
+                $index         = sprintf(
+                    '%s.%s',
+                    static::EVENT_PREFIX,
+                    $event
+                );
+                $carry[$index] = 'onDestroy';
+
+                return $carry;
+            },
+            $events
         );
     }
 
@@ -84,10 +116,13 @@ class MoneybirdWebhookSubscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    public function onWebhookReceived(
+    public function onImport(
         MoneybirdWebhookReceivedEvent $event
     ): void {
-        $method   = lcfirst($event->getEntityType());
+        $method   = strtr(
+            lcfirst($event->getEntityType()),
+            static::METHOD_TRANSLATIONS
+        );
         $resource = $this->client->{$method}();
 
         if ($resource instanceof Model) {
@@ -98,6 +133,21 @@ class MoneybirdWebhookSubscriber implements EventSubscriberInterface
             if ($this->importer->isCandidate($model)) {
                 $this->importer->import($model);
             }
+        }
+    }
+
+    /**
+     * Destroy the entity in the given event.
+     *
+     * @param MoneybirdWebhookReceivedEvent $event
+     *
+     * @return void
+     */
+    public function onDestroy(
+        MoneybirdWebhookReceivedEvent $event
+    ): void {
+        if ($this->destroyer->isSupported($event)) {
+            $this->destroyer->destroy($event);
         }
     }
 }
