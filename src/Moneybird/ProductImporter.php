@@ -117,6 +117,7 @@ class ProductImporter implements ModelImporterInterface
     ): Product {
         $product->setDescription($data->get('description'));
         $product->setPrice($data->get('price'));
+        $product->setCurrency($data->get('currency'));
         $product->setTaxRate(
             $this->taxRates->find(
                 $data->get('tax_rate_id')

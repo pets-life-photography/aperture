@@ -37,6 +37,11 @@ class Product
      */
     private $type;
 
+    /**
+     * @ORM\Column(type="string", length=3)
+     */
+    private $currency;
+
     public function getId(): ?string
     {
         return $this->id;
@@ -93,6 +98,18 @@ class Product
     public function setType(?ProductType $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getCurrency(): ?string
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(string $currency): self
+    {
+        $this->currency = $currency;
 
         return $this;
     }
