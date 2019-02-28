@@ -3,37 +3,39 @@
 {% block title %}Photos{% endblock %}
 
 {% block body %}
-    <table>
-        <thead>
-            <tr>
-                <th>Thumbnail</th>
-                <th colspan="2">Versions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for photo in photos %}
-            {% set thumbnail = photo|photo_version('thumbnail') %}
-            {% for version in photo.versions %}
-            <tr>
-                {% if loop.first %}
-                    <td valign="top" rowspan="{{ photo.versions|length }}">
-                        <img src="{{ thumbnail|photo_version_url }}"
-                             width="{{ thumbnail.width }}"
-                             height="{{ thumbnail.height }}"
-                        />
-                    </td>
-                {% endif %}
-                <td>
-                    {{ version.type }}
-                </td>
-                <td>
-                    <a href="{{ version|photo_version_url }}">
-                        <code>{{ version }}</code>
-                    </a>
-                </td>
-            </tr>
+    <div class="bg-light">
+        <div class="container">
+            <div class="row">
+            {% for photo in photos %}
+                {% set thumbnail = photo|photo_version('preview') %}
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <figure class="card-img-top" style="height:160px">
+                            <img src="{{ thumbnail|photo_version_url }}"
+                                 width="100%" />
+                        </figure>
+                        <div class="card-body">
+                            <div class="btn-group" role="group">
+                                <button id="btnGroupOpen{{ photo.id }}" type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="far fa-images"></i>
+                                    Open
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="btnGroupOpen{{ photo.id }}">
+                                    {% for version in photo.versions %}
+                                    <a href="{{ version|photo_version_url }}"
+                                       target="_blank"
+                                       class="dropdown-item">
+                                        <i class="far fa-image"></i>
+                                        {{ version.type }}
+                                    </a>
+                                {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             {% endfor %}
-        {% endfor %}
-        </tbody>
-    </table>
+            </div>
+        </div>
+    </div>
 {% endblock %}

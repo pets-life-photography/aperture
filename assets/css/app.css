@@ -1,0 +1,12 @@
+figure.card-img-top {
+    height: 160px;
+    position: relative;
+    overflow: hidden;
+}
+
+figure.card-img-top>img {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+}
