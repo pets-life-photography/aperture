@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Photos{% endblock %}
+
+{% block body %}
+    <table>
+        <thead>
+            <tr>
+                <th>Thumbnail</th>
+                <th colspan="2">Versions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for photo in photos %}
+            {% set thumbnail = photo|photo_version('thumbnail') %}
+            {% for version in photo.versions %}
+            <tr>
+                {% if loop.first %}
+                    <td valign="top" rowspan="{{ photo.versions|length }}">
+                        <img src="{{ thumbnail|photo_version_url }}"
+                             width="{{ thumbnail.width }}"
+                             height="{{ thumbnail.height }}"
+                        />
+                    </td>
+                {% endif %}
+                <td>
+                    {{ version.type }}
+                </td>
+                <td>
+                    <a href="{{ version|photo_version_url }}">
+                        <code>{{ version }}</code>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

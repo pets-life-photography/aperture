@@ -166,4 +166,9 @@ class PhotoVersion
 
         return $this;
     }
+
+    public function __toString(): string
+    {
+        return $this->hash;
+    }
 }
