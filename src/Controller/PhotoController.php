@@ -5,7 +5,11 @@ namespace App\Controller;
 use App\Entity\Photo;
 use App\Entity\PhotoVersion;
 use App\Repository\PhotoRepository;
+use App\Repository\PhotoVersionRepository;
+use DateTimeImmutable;
+use Doctrine\ORM\Query\Expr\Join;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,14 +24,21 @@ class PhotoController extends AbstractController
     /** @var PhotoRepository */
     private $photos;
 
+    /** @var PhotoVersionRepository */
+    private $versions;
+
     /**
      * Constructor.
      *
-     * @param PhotoRepository $photos
+     * @param PhotoRepository        $photos
+     * @param PhotoVersionRepository $versions
      */
-    public function __construct(PhotoRepository $photos)
-    {
-        $this->photos = $photos;
+    public function __construct(
+        PhotoRepository $photos,
+        PhotoVersionRepository $versions
+    ) {
+        $this->photos   = $photos;
+        $this->versions = $versions;
     }
 
     /**
@@ -49,57 +60,68 @@ class PhotoController extends AbstractController
     /**
      * @Route("/photo/{id}/{hash}.{extension}", name="photo_show")
      *
-     * @param int    $id
-     * @param string $hash
-     * @param string $extension
+     * @param Request $request
+     * @param int     $id
+     * @param string  $hash
+     * @param string  $extension
      *
      * @return Response
      *
      * @throws NotFoundHttpException When the photo or its version could not be found.
      */
-    public function show(int $id, string $hash, string $extension): Response
-    {
-        $photo = $this
-            ->photos
-            ->findOneBy(
+    public function show(
+        Request $request,
+        int $id,
+        string $hash,
+        string $extension
+    ): Response {
+        $response = new Response(
+            '',
+            200,
+            ['Content-Type' => static::EXTENSIONS[$extension] ?? 'text/plain']
+        );
+
+        $response->setEtag($hash);
+        $response->setPrivate();
+        $response->setImmutable(true);
+        $response->setExpires(new DateTimeImmutable('+200 years'));
+        $response->headers->addCacheControlDirective('no-transform', true);
+        $response->headers->addCacheControlDirective('only-if-cached', true);
+
+        if (!$response->isNotModified($request)) {
+            $builder = $this->versions->createQueryBuilder('version');
+            $builder->select('version');
+            $builder->where('version.hash = :hash');
+            $builder->innerJoin(
+                Photo::class,
+                'photo',
+                Join::WITH,
+                'version.photo = photo'
+            );
+            $builder->andWhere('photo.id = :photoId');
+            $builder->andWhere('photo.contentType = :contentType');
+
+            $builder->setParameters(
                 [
-                    'id' => $id,
-                    'contentType' => static::EXTENSIONS[$extension] ?? 'invalid'
+                    ':photoId' => $id,
+                    ':hash' => $hash,
+                    ':contentType' => static::EXTENSIONS[$extension] ?? 'invalid'
                 ]
             );
 
-        if (!$photo instanceof Photo) {
-            throw new NotFoundHttpException(
-                'Photo does not exist.'
-            );
-        }
+            $version = $builder->getQuery()->getSingleResult();
 
-        $version = array_reduce(
-            iterator_to_array($photo->getVersions()),
-            function (
-                ?PhotoVersion $carry,
-                PhotoVersion $version
-            ) use ($hash): ?PhotoVersion {
-                if ($carry === null
-                    && $version->getHash() === $hash
-                ) {
-                    $carry = $version;
-                }
-
-                return $carry;
+            if (!$version instanceof PhotoVersion) {
+                throw new NotFoundHttpException(
+                    'Photo does not exist.'
+                );
             }
-        );
 
-        if (!$version instanceof PhotoVersion) {
-            throw new NotFoundHttpException(
-                'Photo does not exist.'
+            $response->setContent(
+                stream_get_contents($version->getContent())
             );
         }
 
-        return new Response(
-            stream_get_contents($version->getContent()),
-            200,
-            ['content-type' => $photo->getContentType()]
-        );
+        return $response;
     }
 }
