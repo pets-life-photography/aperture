@@ -1,3 +1,14 @@
 parameters:
+  ignoreErrors:
+  	- '#Call to an undefined method Spatie\\Image\\Image::\w+\(\)#'
+
   excludes_analyse:
     - %rootDir%/../../../src/Migrations/Version*.php
+
+  symfony:
+    container_xml_path: '%rootDir%/../../../var/cache/dev/srcApp_KernelDevDebugContainer.xml'
+
+includes:
+	- vendor/phpstan/phpstan-doctrine/extension.neon
+	- vendor/phpstan/phpstan-doctrine/rules.neon
+	- vendor/phpstan/phpstan-symfony/extension.neon

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use App\DataFixtures\ProductFixtures;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -12,11 +13,6 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20190224190944 extends AbstractMigration
 {
-    private const PRODUCT_TYPES = [
-        'defined' => 'This product can only be selected by an administrator.',
-        'selected' => 'This product can be selected by an end-user.'
-    ];
-
     public function getDescription() : string
     {
         return 'Product, Product type, Tax rate';
@@ -33,7 +29,7 @@ final class Version20190224190944 extends AbstractMigration
         $this->addSql('ALTER TABLE product ADD CONSTRAINT FK_D34A04ADFDD13F95 FOREIGN KEY (tax_rate_id) REFERENCES tax_rate (id)');
         $this->addSql('ALTER TABLE product ADD CONSTRAINT FK_D34A04ADC54C8C93 FOREIGN KEY (type_id) REFERENCES product_type (name)');
 
-        foreach (static::PRODUCT_TYPES as $name => $description) {
+        foreach (ProductFixtures::PRODUCT_TYPES as $name => $description) {
             $this->addSql(
                 'INSERT INTO product_type (name, description) VALUES (:name, :description)',
                 [

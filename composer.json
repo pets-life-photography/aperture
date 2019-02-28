@@ -8,6 +8,7 @@
         "ext-apcu": "*",
         "ext-ctype": "*",
         "ext-curl": "*",
+        "ext-fileinfo": "*",
         "ext-gd": "*",
         "ext-iconv": "*",
         "ext-json": "*",
@@ -39,7 +40,10 @@
         "symfony/yaml": "4.2.*"
     },
     "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^3.1",
         "mediact/testing-suite": "@stable",
+        "phpstan/phpstan-doctrine": "^0.11.1",
+        "phpstan/phpstan-symfony": "^0.11.1",
         "symfony/debug-pack": "@stable",
         "symfony/maker-bundle": "^1.0",
         "symfony/profiler-pack": "@stable",

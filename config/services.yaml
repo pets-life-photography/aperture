@@ -47,3 +47,6 @@ services:
         arguments:
             - active: true
               selected: true
+
+    App\Entity\:
+        resource: '../src/Entity/*Factory*'
